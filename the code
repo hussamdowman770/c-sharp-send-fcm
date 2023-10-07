@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
+namespace fcm
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            if(textBox1.Text==""||textBox2.Text=="")
+            {
+                MessageBox.Show("يجب ملاء الحقول");
+                return;
+            }
+            string firebaseAdminJsonPath = "s.json";
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(firebaseAdminJsonPath),
+            });
+
+            var message = new FirebaseAdmin.Messaging.Message()
+            {
+                Topic = "News", // Replace with the name of your topic
+                Notification = new Notification
+                {
+                    Title = textBox1.Text,
+                    Body = textBox2.Text,
+                },
+            };
+
+            try
+            {
+                string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+                MessageBox.Show("Successfully sent message to topic: " + response);
+            }
+            catch (FirebaseMessagingException ex)
+            {
+                MessageBox.Show("Error sending message: " + ex.Message);
+            }
+        }
+    }
+}
